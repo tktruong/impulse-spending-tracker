@@ -36,7 +36,6 @@ class Tracker():
         if debug == "y":
             print("Wishlist contains:", self.__wishlist)
 
-
     def is_in_wishlist(self, item):
 
         """
@@ -45,16 +44,6 @@ class Tracker():
 
         return item in self.__wishlist.keys()
 
-    def print_wishlist_old(self, csv = "no"):
-
-        """Function to put the wishlist dict into a df
-        for easy viewing with an option to create csv"""
-
-        # have not built in csv functionality
-        df = pd.DataFrame(self.__wishlist)
-        df_T = df.T
-
-        return df_T[(df_T["redeemed"][0] == "n") & (df_T["del_ind"][0] == "n")]
 
     def print_wishlist(self, only_active = "y"):
 
@@ -63,61 +52,35 @@ class Tracker():
         either contains only active items or all items regardless of deletion
         or redemption
         """
-        #QUESTION: add sorting to these tables? Like by date?
 
         formatted_wl = []
-
+        headers = ["Item", "Date", "Category", "Price", "Value"]
 
         if only_active == "y":
 
             for k, v in self.__wishlist.items():
                 if v["redeemed"][0] == "n" and v["del_ind"][0] == "n":
-                    formatted_wl.append((k, v["date"].strftime("%m/%d/%Y"), v["category"],
-                                         float(v["price"]), v["value"]))
-
-            headers = ["Item", "Date", "Category", "Price", "Value"]
+                    formatted_wl.append((k, v["date"].strftime("%m/%d/%Y"),
+                    v["category"],float(v["price"]), v["value"]))
 
         elif only_active == "n":
 
             for k, v in self.__wishlist.items():
-                formatted_wl.append((k, v["date"].strftime("%m/%d/%Y"), v["category"],
-                                     float(v["price"]), v["value"], v["del_ind"], v["redeemed"]))
-
-            headers = ["Item", "Date", "Category", "Price", "Value", "Deleted?", "Redeemed?"]
+                formatted_wl.append((k, v["date"].strftime("%m/%d/%Y"),
+                                    v["category"],float(v["price"]), v["value"],
+                                    v["del_ind"], v["redeemed"]))
+            # add additional header columns
+            headers += ["Deleted?","Redeemed?"]
 
         return tabulate(formatted_wl, headers = headers)
 
-    # getter
-    @property
-    def points(self):
-        return self.__points
-
-    @property
-    def wishlist(self):
-        return self.__wishlist
-
-    @property
-    def points(self):
-        return self.__points
-
-    @property
-    def cost(self):
-        return self.__cost
-
-    @property
-    def wl_points(self):
-        return self.__wl_points
-
-    #@points.setter
-    #def set_points(self, points):
-
-        #"""After calculating the points for the day, set that as the points """
-
-        #self.points = points
 
     class IsDel(Exception):
 
-        """ Raised when item has been deleted to prevent performing actions on deleted items """
+        """
+        Raised when item has been deleted to prevent performing actions on
+        deleted items
+        """
 
         def __init__(self, item, message = "Unable to perform action. Item has been deleted."):
             self.item = item
@@ -131,7 +94,10 @@ class Tracker():
 
     class IsRedeemed(Exception):
 
-        """ Raised when item has been redeemed to prevent peforming actions on redeemed items"""
+        """
+        Raised when item has been redeemed to prevent peforming actions on
+        redeemed items
+        """
 
         def __init__(self, item, message = "Unable to perform action. Item has been redeemed."):
             self.item = item
@@ -142,10 +108,11 @@ class Tracker():
 
             return "{} --> {}".format(self.item, self.message)
 
-    # QUESTION: should I have this class if I already have the function check whether it's in there...?
     class NotInWishlist(Exception):
 
-        """ Raised when item is not in wishlist """
+        """
+        Raised when item is not in wishlist
+        """
 
         def __init__(self, item, message = "Unable to perform action. Item is not in wishlist."):
             self.item = item
@@ -158,7 +125,9 @@ class Tracker():
 
     class NotEnough(Exception):
 
-        """ Raised when item redemption exceeds point total"""
+        """
+        Raised when item redemption exceeds point total
+        """
 
         def __init__(self, item, message = "Unable to perform action. Item value exceeds accumulated point total."):
             self.item = item
@@ -176,7 +145,7 @@ class Tracker():
         Function to add wishlist item if it doesn't already exist in the dict
         """
 
-        if self.is_in_wishlist(item) is False:
+        if not self.is_in_wishlist(item):
 
             if override_dates == "n":
                 self.__wishlist[item] = {"price":price, "category":category,
@@ -184,6 +153,7 @@ class Tracker():
                                          "redeemed_dt":datetime.date(1900, 1, 1), "redeemed":"n",
                                         "del_ind": "n"}
                 print("Item added to wishlist")
+
             elif override_dates == "y":
                 # allows overriding logging today's date in case we're backtracking
                 self.__wishlist[item] = {"price":price, "category":category,
@@ -193,7 +163,6 @@ class Tracker():
                 print("Item added to wishlist")
 
         else:
-            # revisit to create a way to bypass this upon user confirmation
             print("Item is already in wishlist")
 
 
@@ -201,12 +170,13 @@ class Tracker():
     def del_item(self, item):
 
         """
-        Function to mark an item as deleted. We don't do a hard delete in case we need to backtrack.
+        Function to mark an item as deleted. We don't do a hard delete
+        in case we need to backtrack.
         """
-        # TO DO: prevent delete if it has already been deleted or redeemed using errors
+
         try:
 
-            if self.is_in_wishlist(item) is False:
+            if not self.is_in_wishlist(item):
                 raise self.NotInWishlist(item)
 
             if self.__wishlist[item]["del_ind"] == "y":
@@ -236,7 +206,7 @@ class Tracker():
 
         try:
 
-            if self.is_in_wishlist(item) is False:
+            if not self.is_in_wishlist(item):
                 raise self.NotInWishlist(item)
 
             if self.__wishlist[item]["del_ind"] == "y":
@@ -244,7 +214,6 @@ class Tracker():
 
             if self.__wishlist[item]["redeemed"] == "y":
                 raise self.IsRedeemed(item)
-
 
             self.__wishlist[item][to_update] = update
             print("Item has been updated")
