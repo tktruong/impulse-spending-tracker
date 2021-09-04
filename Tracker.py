@@ -28,53 +28,6 @@ class Tracker():
         # get a username
         self.__username = username
 
-    def tracker_info(self, debug = "n"):
-
-        print("Start Date of Tracker:", self.__start_date)
-        print("Username is:", self.__username)
-
-        if debug == "y":
-            print("Wishlist contains:", self.__wishlist)
-
-    def is_in_wishlist(self, item):
-
-        """
-        Function to check whether something is in the wishlist
-        """
-
-        return item in self.__wishlist.keys()
-
-
-    def print_wishlist(self, only_active = "y"):
-
-        """
-        Function that uses tabulate to create a formatted table for user that
-        either contains only active items or all items regardless of deletion
-        or redemption
-        """
-
-        formatted_wl = []
-        headers = ["Item", "Date", "Category", "Price", "Value"]
-
-        if only_active == "y":
-
-            for k, v in self.__wishlist.items():
-                if v["redeemed"][0] == "n" and v["del_ind"][0] == "n":
-                    formatted_wl.append((k, v["date"].strftime("%m/%d/%Y"),
-                    v["category"],float(v["price"]), v["value"]))
-
-        elif only_active == "n":
-
-            for k, v in self.__wishlist.items():
-                formatted_wl.append((k, v["date"].strftime("%m/%d/%Y"),
-                                    v["category"],float(v["price"]), v["value"],
-                                    v["del_ind"], v["redeemed"]))
-            # add additional header columns
-            headers += ["Deleted?","Redeemed?"]
-
-        return tabulate(formatted_wl, headers = headers)
-
-
     class IsDel(Exception):
 
         """
@@ -138,6 +91,53 @@ class Tracker():
 
             return "{} --> {}".format(self.item, self.message)
 
+    def tracker_info(self, debug = "n"):
+
+        print("Start Date of Tracker:", self.__start_date)
+        print("Username is:", self.__username)
+
+        if debug == "y":
+            print("Wishlist contains:", self.__wishlist)
+
+    def is_in_wishlist(self, item):
+
+        """
+        Function to check whether something is in the wishlist
+        """
+
+        return item in self.__wishlist.keys()
+
+
+    def print_wishlist(self, only_active = "y"):
+
+        """
+        Function that uses tabulate to create a formatted table for user that
+        either contains only active items or all items regardless of deletion
+        or redemption
+        """
+
+        formatted_wl = []
+        headers = ["Item", "Date", "Category", "Price", "Value"]
+
+        if only_active == "y":
+
+            for k, v in self.__wishlist.items():
+                if v["redeemed"][0] == "n" and v["del_ind"][0] == "n":
+                    formatted_wl.append((k, v["date"].strftime("%m/%d/%Y"),
+                    v["category"],float(v["price"]), v["value"]))
+
+        elif only_active == "n":
+
+            for k, v in self.__wishlist.items():
+                formatted_wl.append((k, v["date"].strftime("%m/%d/%Y"),
+                                    v["category"],float(v["price"]), v["value"],
+                                    v["del_ind"], v["redeemed"]))
+            # add additional header columns
+            headers += ["Deleted?","Redeemed?"]
+
+        return tabulate(formatted_wl, headers = headers)
+
+
     def add_item(self, item, price, category, value,
                           override_dates = "n", date = datetime.date(1900, 1, 1)):
 
@@ -164,8 +164,6 @@ class Tracker():
 
         else:
             print("Item is already in wishlist")
-
-
 
     def del_item(self, item):
 
@@ -230,7 +228,8 @@ class Tracker():
     def calc(self):
 
         """
-        Function to calculate the total points and cost based on the number of non-redeemed items current in the list
+        Function to calculate the total points and cost based on the number of
+         non-redeemed items current in the list
         """
 
         points = 0
@@ -259,7 +258,7 @@ class Tracker():
         self.__cost = cost
         self.__wl_points = wl_points
 
-    def redeem_item(self, item):
+    def redeem_item(self, item, override_dates = "n", override_date = datetime.date(1900, 1, 1)):
 
         """
         Function to mark an item as redeemed in the wishlist if its point value is not larger
@@ -285,15 +284,20 @@ class Tracker():
             if self.__wishlist[item]["value"] > self.__points:
                 raise self.NotEnough(item)
 
-            # QUESTION: do I need to the private reference here if I set up the getter??
             self.__wishlist[item]["redeemed"] = "y"
-            self.__wishlist[item]["redeemed_dt"] = datetime.date.today()
             self.__points -= self.__wishlist[item]["value"]
             self.__cost -= self.__wishlist[item]["price"]
 
+            if override_dates == "n":
+
+                self.__wishlist[item]["redeemed_dt"] = datetime.date.today()
+
+            elif override_dates == "y":
+
+                self.__wishlist[item]["redeemed_dt"] = override_date
+
             print("Item successfully redeemed!")
 
-        # QUESTION: do I need all the details in the error classes if I'm just going to print anyway?
         except self.NotInWishlist:
             print("Item not in wishlist.")
 
@@ -309,10 +313,8 @@ class Tracker():
 
     def search_wishlist(self, item):
 
-        # may have to be broken down into other methods depending on search?
-
         """
-        Function to return item dict if item exists
+        Function to return item dict if item exists to act as a search
         """
 
         if self.is_in_wishlist(item):
