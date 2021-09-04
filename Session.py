@@ -242,7 +242,6 @@ class Session():
 
 
         # find the latest file of the corresponding username
-
         # set current username to username
         self.cur_username = username
 
@@ -276,7 +275,7 @@ class Session():
         while True:
 
             print("""
-            When an item is added to the wishlist, it is timestamped to today's date
+            When an item is added or redeemed with the wishlist, it is timestamped with today's date
             by default. You have the option to override this and input a custom date.
             For example, if you were tracking items elsewhere. Note: Item dates are used
             to calculate point accummulation so altering them will affect your points.
@@ -292,8 +291,7 @@ class Session():
                         return "y", datetime.datetime.strptime(str_date, "%m/%d/%Y").date()
                     except:
                         print("Invalid date. Please use the MM/DD/YYYY format. Try again.")
-                        #continue
-                        # QUESTION: add a quit/exit function? or just break so it passes the control
+
 
             elif resp[0].lower() == "n":
 
@@ -301,7 +299,6 @@ class Session():
 
             else:
                 print("Invalid response. Please try again.")
-                #continue
 
     def add_item_price(self):
 
@@ -523,11 +520,14 @@ class Session():
 
             if self.cur_tracker.is_in_wishlist(resp):
 
+
                 resp2 = input("Please type Y to confirm that you want to redeem this item: ")
 
                 if resp2.lower() == 'y':
 
-                    self.cur_tracker.redeem_item(resp)
+                    override, date = self.add_item_date()
+                    self.cur_tracker.redeem_item(resp, override, date)
+
                     break
                 else:
                     continue
@@ -632,4 +632,3 @@ class Session():
 
         print("The program will now exit. Thank you for using the Impulse Tracker!")
         exit(0)
-    
