@@ -129,7 +129,7 @@ class Session():
             elif resp == "5":
                 self.search_item()
             elif resp == "6":
-                self.print_wishlist()
+                self.view_wishlist()
             elif resp == "7":
                 self.tracker_info()
             elif resp == "8":
@@ -280,7 +280,7 @@ class Session():
             For example, if you were tracking items elsewhere. Note: Item dates are used
             to calculate point accummulation so altering them will affect your points.
                   """)
-            resp = input("Do you want to override the item date? y/n ")
+            resp = input("Do you want to override the item date? y/n: ")
 
             if resp[0].lower() == "y":
 
@@ -288,7 +288,14 @@ class Session():
                     str_date = input("Enter a custom item date in the following format (MM/DD/YYYY): ")
 
                     try:
-                        return "y", datetime.datetime.strptime(str_date, "%m/%d/%Y").date()
+
+                        if datetime.datetime.strptime(str_date, "%m/%d/%Y").date() > datetime.date(1970, 1, 1):
+
+                            return "y", datetime.datetime.strptime(str_date, "%m/%d/%Y").date()
+
+                        else:
+                            print("Is this correct? Dates should be at least after 1/1/1970! Try again.")
+
                     except:
                         print("Invalid date. Please use the MM/DD/YYYY format. Try again.")
 
@@ -307,7 +314,6 @@ class Session():
         Performs error checking
         Returns the object
         """
-        # user must enter either a float or int price, but internally must be converted to float
 
         while True:
 
@@ -406,8 +412,6 @@ class Session():
                 if resp == "1":
                     continue
                 elif resp == "2":
-                    #  QUESTION: possible to pass in what item they inputted previously?
-                    # would make the transition more seamless
                     self.update_item()
                     self.display_functions()
                 else:
@@ -424,7 +428,7 @@ class Session():
             self.cur_tracker.add_item(item = item, price = price, category = category,
                                       value = value, override_dates = override, date = date)
         except:
-            print("Something went wrong?")
+            print("Unable to add item. Returning to Main Menu.")
 
         finally:
             self.display_functions()
@@ -435,14 +439,12 @@ class Session():
         """
         Asks user what item to updated and what part they want to update
         """
-        # TO DO: add error checking so that you can't update a deleted item or redeemed item
 
         while True:
 
             resp = input("What is the name of the item you would like to update? ")
 
-            if self.cur_tracker.is_in_wishlist(resp):
-                # QUESTION: allow updates of the date added?
+            if self.cur_tracker.is_in_wishlist(resp) and self.cur_tracker.is_deleted(resp) == False and self.cur_tracker.is_redeemed(resp) == False:
 
                 print("""
                 What would you like to update for this item?
@@ -470,10 +472,7 @@ class Session():
                 break
 
             else:
-
                 print("That item is not in the wishlist. Please try again.")
-
-                # QUESTION: add an opt out?
 
 
     def del_item(self):
@@ -487,10 +486,9 @@ class Session():
 
         while True:
 
-            # TO DO: make it not as case sensitive
             resp = input("What item do you want to delete from the wishlist? Please type the exact name: ")
 
-            if self.cur_tracker.is_in_wishlist(resp):
+            if self.cur_tracker.is_in_wishlist(resp) and self.cur_tracker.is_deleted(resp) == False and self.cur_tracker.is_redeemed(resp) == False:
 
                 resp2 = input("Please type Y to confirm that you want to delete this item: ")
 
@@ -498,9 +496,13 @@ class Session():
 
                     self.cur_tracker.del_item(resp)
                     time.sleep(2)
-                    break
+
                 else:
-                    continue
+                    print("Item deletion canceled. \n")
+
+                break
+                #else:
+                    #continue
             else:
                 print("Item not in wishlist. Please try again.")
 
@@ -515,11 +517,10 @@ class Session():
         """
 
         while True:
-            # TO DO: make it not as case sensitive
+
             resp = input("What item do you want to redeem from the wishlist? Please type the exact name: ")
 
-            if self.cur_tracker.is_in_wishlist(resp):
-
+            if self.cur_tracker.is_in_wishlist(resp) and self.cur_tracker.is_deleted(resp) == False and self.cur_tracker.is_redeemed(resp) == False:
 
                 resp2 = input("Please type Y to confirm that you want to redeem this item: ")
 
@@ -528,9 +529,10 @@ class Session():
                     override, date = self.add_item_date()
                     self.cur_tracker.redeem_item(resp, override, date)
 
-                    break
                 else:
-                    continue
+                    print("Item redemption canceled. \n")
+
+                break
             else:
                 print("Item not in wishlist. Please try again.")
 
@@ -557,22 +559,22 @@ class Session():
                 print("Item not in wishlist. Please try again using the exact name of the item.")
 
 
-
-    def print_wishlist(self):
+    def view_wishlist(self):
         """
-        Utilizes the print wishlist function the tracker to present
+        Utilizes the view wishlist function the tracker to present
         either a wishlist of only active items or the full wishlist regardless
         of deletion or redemption
         """
+
         while True:
 
-            resp = input("Do you want to see only active items? Please enter y/n")
+            resp = input("Do you want to see only active items? Please enter y/n: ")
 
             if resp.lower()[0] == "y":
-                print(self.cur_tracker.print_wishlist())
+                print(self.cur_tracker.view_wishlist())
                 break
             elif resp.lower()[0] == "n":
-                print(self.cur_tracker.print_wishlist(only_active = 'n'))
+                print(self.cur_tracker.view_wishlist(only_active = 'n'))
                 break
             else:
                 print("Invalid response. Please try again.")
@@ -581,8 +583,6 @@ class Session():
     def tracker_info(self, debug = "n"):
 
         """ Displays information about the tracker """
-
-        # QUESTION: Update with more metadata like last save?
 
         self.cur_tracker.calc()
 
@@ -594,7 +594,9 @@ class Session():
                 {}'s current points are: {}
                 {}'s wishlist current point totals up to: {}
                 {}'s wishlist current cost totals up to: {:.2f}
-                """.format(self.cur_username, self.cur_tracker.points, self.cur_username, self.cur_tracker.wl_points, self.cur_username, self.cur_tracker.cost))
+                """.format(self.cur_username, self.cur_tracker._Tracker__points,
+                self.cur_username, self.cur_tracker._Tracker__wl_points,
+                self.cur_username, self.cur_tracker._Tracker__cost))
 
             if resp == "y":
                 self.cur_tracker.tracker_info(debug = "y")
@@ -609,6 +611,7 @@ class Session():
         Saves the tracker names into a pickle file inside the data directory
         Saves the current tracker into a pickle file inside the data directory
         """
+
         now = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
         names_file = "data/tracker_names_" + now + ".pickle"

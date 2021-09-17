@@ -107,8 +107,34 @@ class Tracker():
 
         return item in self.__wishlist.keys()
 
+    def is_deleted(self, item):
 
-    def print_wishlist(self, only_active = "y"):
+        """
+        Function to check whether something is in the wishlist and has been deleted
+        """
+
+        if self.is_in_wishlist(item):
+
+            return self.__wishlist[item]["del_ind"] == "y"
+
+        else:
+            return False
+
+    def is_redeemed(self, item):
+
+        """
+        Function to check whether something is in the wishlist and has been redeemed
+        """
+
+        if self.is_in_wishlist(item):
+
+            return self.__wishlist[item]["redeemed"] == "y"
+
+        else:
+            return False
+
+
+    def view_wishlist(self, only_active = "y"):
 
         """
         Function that uses tabulate to create a formatted table for user that
