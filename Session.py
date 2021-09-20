@@ -34,7 +34,8 @@ class Session():
 
             ___  __        __        ___  __
              |  |__)  /\  /  ` |__/ |__  |__)
-             |  |  \ /~~\ \__, |  \ |___ |  \
+             |  |  \ /~~\ \__, |  \ |___ |  \\
+
             """)
 
             print("""
@@ -280,7 +281,7 @@ class Session():
             For example, if you were tracking items elsewhere. Note: Item dates are used
             to calculate point accummulation so altering them will affect your points.
                   """)
-            resp = input("Do you want to override the item date? y/n: ")
+            resp = input("Do you want to override the item date? Y/N: ")
 
             if resp[0].lower() == "y":
 
@@ -568,7 +569,7 @@ class Session():
 
         while True:
 
-            resp = input("Do you want to see only active items? Please enter y/n: ")
+            resp = input("Do you want to see only active items? Please enter Y/N: ")
 
             if resp.lower()[0] == "y":
                 print(self.cur_tracker.view_wishlist())
@@ -588,7 +589,7 @@ class Session():
 
         while True:
 
-            resp = input("View tracker info in debugging mode? y/n: ")
+            resp = input("View tracker info in debugging mode? Y/N: ")
 
             print("""
                 {}'s current points are: {}
@@ -598,10 +599,10 @@ class Session():
                 self.cur_username, self.cur_tracker._Tracker__wl_points,
                 self.cur_username, self.cur_tracker._Tracker__cost))
 
-            if resp == "y":
+            if resp.lower() == "y":
                 self.cur_tracker.tracker_info(debug = "y")
                 break
-            elif resp == "n":
+            elif resp.lower() == "n":
                 self.cur_tracker.tracker_info(debug = "n")
                 break
 
