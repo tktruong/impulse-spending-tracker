@@ -402,6 +402,11 @@ class Session():
 
             item = input("To get started with adding an item to the wishlist, enter the item name: ")
 
+            if item.lower() == "cancel":
+                print("Returning to Main Menu...")
+                self.display_functions()
+                break
+
             if self.cur_tracker.is_in_wishlist(item):
                 print("""
                 This item already exists in the wishlist.
@@ -414,7 +419,8 @@ class Session():
                     continue
                 elif resp == "2":
                     self.update_item()
-                    self.display_functions()
+                    #self.display_functions()
+                    break
                 else:
                     continue
             else:
@@ -470,6 +476,8 @@ class Session():
 
                 if resp2 == "2" or resp2 == "3":
                     self.cur_tracker.calc()
+
+                self.display_functions()
                 break
 
             else:
