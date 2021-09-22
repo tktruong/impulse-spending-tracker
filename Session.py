@@ -116,6 +116,9 @@ class Session():
             7) View tracker info
             8) Save tracker
             9) Save tracker and quit
+
+            To cancel/exit from any of the menu options, type "Cancel" in the
+            prompt.
             """)
             resp = input("What would you like to do? ")
 
@@ -283,10 +286,20 @@ class Session():
                   """)
             resp = input("Do you want to override the item date? Y/N: ")
 
+            if resp.lower() == "cancel":
+                print("Returning to Main Menu...")
+                self.display_functions()
+                break
+
             if resp[0].lower() == "y":
 
                 while True:
                     str_date = input("Enter a custom item date in the following format (MM/DD/YYYY): ")
+
+                    if str_date.lower() == "cancel":
+                        print("Returning to Main Menu...")
+                        self.display_functions()
+                        break
 
                     try:
 
@@ -318,7 +331,12 @@ class Session():
 
         while True:
 
-            resp = input("Enter the item price $:")
+            resp = input("Enter the item price $: ")
+
+            if resp.lower() == "cancel":
+                print("Returning to Main Menu...")
+                self.display_functions()
+                break
 
             try:
                 # no zero dollars or negative numbers
@@ -361,6 +379,11 @@ class Session():
 
             resp = input("Select an item category by the number: ")
 
+            if resp.lower() == "cancel":
+                print("Returning to Main Menu...")
+                self.display_functions()
+                break
+
             # if valid response then return it
             if resp in [str(i) for i in range(1, 8)]:
 
@@ -387,6 +410,11 @@ class Session():
 
             resp = input("Item point value: ")
 
+            if resp.lower() == "cancel":
+                print("Returning to Main Menu...")
+                self.display_functions()
+                break
+
             if int(resp) >= 100 and int(resp) <= 2000:
                 return int(resp)
             else:
@@ -412,6 +440,7 @@ class Session():
                 This item already exists in the wishlist.
                 1) Enter a new item
                 2) Update existing item
+                3) Return to Main Menu
                 """)
                 resp = input("What would you like to do? ")
 
@@ -421,6 +450,8 @@ class Session():
                     self.update_item()
                     #self.display_functions()
                     break
+                elif resp == "3":
+                    self.display_functions()
                 else:
                     continue
             else:
@@ -451,6 +482,11 @@ class Session():
 
             resp = input("What is the name of the item you would like to update? ")
 
+            if resp.lower() == "cancel":
+                print("Returning to Main Menu...")
+                self.display_functions()
+                break
+
             if self.cur_tracker.is_in_wishlist(resp) and self.cur_tracker.is_deleted(resp) == False and self.cur_tracker.is_redeemed(resp) == False:
 
                 print("""
@@ -466,6 +502,11 @@ class Session():
                            "3":["value", self.add_item_value]}
 
                 resp2 = input("Select one of the options above by typing in the number: ")
+
+                if resp2.lower() == "cancel":
+                    print("Returning to Main Menu...")
+                    self.display_functions()
+                    break
 
                 if resp2 in options.keys():
 
@@ -497,6 +538,11 @@ class Session():
 
             resp = input("What item do you want to delete from the wishlist? Please type the exact name: ")
 
+            if resp.lower() == "cancel":
+                print("Returning to Main Menu...")
+                self.display_functions()
+                break
+
             if self.cur_tracker.is_in_wishlist(resp) and self.cur_tracker.is_deleted(resp) == False and self.cur_tracker.is_redeemed(resp) == False:
 
                 resp2 = input("Please type Y to confirm that you want to delete this item: ")
@@ -510,8 +556,7 @@ class Session():
                     print("Item deletion canceled. \n")
 
                 break
-                #else:
-                    #continue
+
             else:
                 print("Item not in wishlist. Please try again.")
 
@@ -528,6 +573,11 @@ class Session():
         while True:
 
             resp = input("What item do you want to redeem from the wishlist? Please type the exact name: ")
+
+            if resp.lower() == "cancel":
+                print("Returning to Main Menu...")
+                self.display_functions()
+                break
 
             if self.cur_tracker.is_in_wishlist(resp) and self.cur_tracker.is_deleted(resp) == False and self.cur_tracker.is_redeemed(resp) == False:
 
@@ -550,6 +600,11 @@ class Session():
         while True:
 
             resp = input("What is the name of the item you want to search for? ")
+
+            if resp.lower() == "cancel":
+                print("Returning to Main Menu...")
+                self.display_functions()
+                break
 
             if self.cur_tracker.is_in_wishlist(resp):
 
@@ -578,6 +633,11 @@ class Session():
         while True:
 
             resp = input("Do you want to see only active items? Please enter Y/N: ")
+
+            if resp.lower() == "cancel":
+                print("Returning to Main Menu...")
+                self.display_functions()
+                break
 
             if resp.lower()[0] == "y":
                 print(self.cur_tracker.view_wishlist())
