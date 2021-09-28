@@ -457,19 +457,14 @@ class Session():
             else:
                 break
 
-        try:
-            category = self.add_item_cat()
-            price = self.add_item_price()
-            value = self.add_item_value()
-            override, date = self.add_item_date()
 
-            self.cur_tracker.add_item(item = item, price = price, category = category,
-                                      value = value, override_dates = override, date = date)
-        except:
-            print("Unable to add item. Returning to Main Menu.")
+        category = self.add_item_cat()
+        price = self.add_item_price()
+        value = self.add_item_value()
+        override, date = self.add_item_date()
 
-        finally:
-            self.display_functions()
+        self.cur_tracker.add_item(item = item, price = price, category = category,
+                                     value = value, override_dates = override, date = date)
 
 
 
